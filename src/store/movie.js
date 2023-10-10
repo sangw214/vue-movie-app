@@ -54,13 +54,13 @@ export default {
 
       try{
 
-        const res = await _fecthMovie({ 
+        const res = await _fetchMovie({ 
           ...payload, 
           page: 1 
         })
-  
+
         const { Search, totalResults } = res.data
-  
+
         commit('updateState', {
           movies: _uniqBy( Search, 'imdbID' ),
         })
@@ -73,18 +73,19 @@ export default {
             if( page > payload.number / 10 ){
               break
             }
-            const res = await _fecthMovie( { 
+            const res = await _fetchMovie( { 
               ...payload,
               page 
             } )
             const { Search } = res.data
+
             commit('updateState', {
               movies: _uniqBy( [...state.movies, ...Search], 'imdbID' )
             })
           }
         }
 
-      }catch( message ){
+      }catch( { message } ){
 
         commit('updateState',{
           movies: [],
@@ -111,18 +112,17 @@ export default {
 
       try{
 
-        const res = await _fecthMovie( payload )
-
-        console.log( res )
+        const res = await _fetchMovie( payload )
 
         commit('updateState', {
           theMovie: res.data
         })
 
-      }catch( message ){
+      }catch( { message } ){
 
         commit('updateState', {
-          theMovie: {}
+          theMovie: {},
+          message
         })
 
       }finally{
@@ -137,25 +137,8 @@ export default {
   },
 }
 
-function _fecthMovie( payload ){
+async function _fetchMovie(payload) {
 
-  const { title, type, year, page, id } = payload
-  const OMDB_API_KEY = '7035c60c'
-  const url = id 
-  ? `https://www.omdbapi.com/?apikey=${OMDB_API_KEY}&i=${id}`
-  : `https://www.omdbapi.com/?apikey=${OMDB_API_KEY}&s=${title}&type=${type}&y=${year}&page=${page}`
-
-  return new Promise(( resolve, reject )=>{
-    axios.get(url)
-      .then( res => {
-        if( res.data.Error ){
-          reject( res.data.Error )
-        }
-        resolve( res )
-      } )
-      .catch( ({ message }) => {
-        reject( message )
-      } )
-  })
-
+  return await axios.post('/.netlify/functions/movie', payload)
+  
 }

@@ -13,7 +13,7 @@ exports.handler = async function (event) {
     : `https://www.omdbapi.com/?apikey=${OMDB_API_KEY}&s=${title}&type=${type}&y=${year}&page=${page}`
 
   try {
-    const { data } = await axios.get(url)
+    const { data } = await axios.get(url);
     if (data.Error) {
       console.log( data.Error )
       return {
